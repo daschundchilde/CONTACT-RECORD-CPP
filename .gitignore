@@ -1,0 +1,5 @@
+DATABASE/
+cmake-build-debug/
+.idea/
+*.txt
+!CMakeLists.txt
