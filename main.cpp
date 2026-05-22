@@ -377,7 +377,8 @@ class Auth{
         ifstream authFile ("DATABASE/userAuths.txt");
 
         if(!authFile){
-            // If file doesn't exist yet, it's fine for a new run
+            cout<<"File Does not Exists.";
+            system("pause");
             return;
         }
         while (authFile>>name>>pass && last < ROWS - 1){
