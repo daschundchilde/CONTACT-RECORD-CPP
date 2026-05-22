@@ -56,7 +56,7 @@ class Contacts{
     }
 
     void saveFile(string name, string mail, string contact) {
-        ofstream saveFile  ("C:/Users/roger/Documents/GEMINI.cli/JETBRAINS/C C++/CONTACT_BOOK/DATABASE/records.txt", ios::app);
+        ofstream saveFile  ("DATABASE/records.txt", ios::app);
 
         if (saveFile.is_open()) {
             saveFile<<name<<" | "<<contact<<" | "<<mail<<"\n";
@@ -69,7 +69,7 @@ class Contacts{
     }
 
     void updateFile() {
-        ofstream updateFile("C:/Users/roger/Documents/GEMINI.cli/JETBRAINS/C C++/CONTACT_BOOK/DATABASE/records.txt", ios::trunc);
+        ofstream updateFile("DATABASE/records.txt", ios::trunc);
 
         if (updateFile.is_open()) {
             for (int i = 0; i < pos; i++) {
@@ -86,7 +86,7 @@ class Contacts{
 
         pos = 0;
 
-        ifstream load("C:/Users/roger/Documents/GEMINI.cli/JETBRAINS/C C++/CONTACT_BOOK/DATABASE/records.txt");
+        ifstream load("DATABASE/records.txt");
         string name, mail, contact;
         if (!load) {
             cout<<"Error, try again later";
@@ -138,7 +138,44 @@ class Contacts{
         }
     }
 
+    void updRec() {
+        string tempContact, tempMail, tempName, tempNewname;
+        int index = -1;
+        system("cls");
+        display();
+        cout<<"Enter the name to update: ";
+        getline(cin, tempName);
 
+        for (int i=0; i < pos; i++) {
+            if (names[i] == tempName) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1) {
+            cout<<"Name does not exist";
+            system("pause");
+            return;
+        } else {
+            cout<<"Enter new name: ";
+            getline(cin, tempNewname);
+
+            cout<<"Enter new email: ";
+            getline(cin, tempMail);
+
+            cout<<"Enter new Contact Number: ";
+            getline(cin, tempContact);
+
+            names[index] = tempNewname;
+            emails[index] = tempMail;
+            contactNos[index] = tempContact;
+
+            updateFile();
+            cout<<"Record updated!";
+            system("pause");
+        }
+    }
 
     void start(){
         system("cls");
@@ -154,6 +191,9 @@ class Contacts{
                     break;
                 case 2:
                     delRec();
+                    break;
+                case 3:
+                    updRec();
                     break;
                 case 4:
                     display();
@@ -228,11 +268,7 @@ class Auth{
         cout<<"\nEnter your username: ";
         getline(cin, tempUser);
 
-        int n;
-
-        n = locate(tempUser);
-
-        if (n==true){
+        if (locate(tempUser)){
             system("cls");
             cout<<"Username already exists, try another!\n";
             system("pause");
@@ -250,27 +286,27 @@ class Auth{
 
         if (go==1){
 
-        cout<<"Enter password: ";
-        getline(cin, tempPass);
+            cout<<"Enter password: ";
+            getline(cin, tempPass);
 
-        cout<<"Enter password again: ";
-        getline(cin, tempPassVerify);
+            cout<<"Enter password again: ";
+            getline(cin, tempPassVerify);
 
-        if (tempPassVerify == tempPass){
-            last++;
-            usernames[last] = tempUser;
-            passwords[last] = tempPass;
+            if (tempPassVerify == tempPass){
+                last++;
+                usernames[last] = tempUser;
+                passwords[last] = tempPass;
 
 
-            cout<<"Account created!";
-            saveUsers(usernames[last], passwords[last]);
-            system("pause");
-            return;
-        }
-        else {
-            cout<<"Password does not match! Try Again.";
-            system("pause");
-        }
+                cout<<"Account created!";
+                saveUsers(usernames[last], passwords[last]);
+                system("pause");
+                return;
+            }
+            else {
+                cout<<"Password does not match! Try Again.";
+                system("pause");
+            }
         }
     }
 
@@ -280,31 +316,31 @@ class Auth{
         int choice;
 
         do{
-        loadUsers();
-        system("cls");
-        cout<<"CONTACT BOOKLET\n1. Sign up\n2. Log in\n3. Exit\n\nChoice:";
-        cin>>choice;
-        cin.ignore();
+            loadUsers();
+            system("cls");
+            cout<<"CONTACT BOOKLET\n1. Sign up\n2. Log in\n3. Exit\n\nChoice:";
+            cin>>choice;
+            cin.ignore();
 
-        switch(choice){
-            case 1:
-            signUp();
-            break;
+            switch(choice){
+                case 1:
+                    signUp();
+                    break;
 
-            case 2:
-            if (logIn()){
-                userMenu.start();
+                case 2:
+                    if (logIn()){
+                        userMenu.start();
+                    }
+                    break;
+
+                case 3:
+                    exit(0);
+                    break;
+
+                default:
+                    cout<<"Invalid Input. Try Again";
+                    break;
             }
-            break;
-
-            case 3:
-            exit(0);
-            break;
-
-            default:
-            cout<<"Invalid Input. Try Again";
-            break;
-        }
         } while(true);
         return;
     }
@@ -321,7 +357,7 @@ class Auth{
     void saveUsers(string usn, string pass){
 
 
-        ofstream authFile("C:/Users/roger/Documents/TUP/cpp/CONTACT_BOOK/DATABASE/userAuths.txt", ios::app);
+        ofstream authFile("DATABASE/userAuths.txt", ios::app);
         if (!authFile){
             cout<<"Error, Try again later.";
             return;
@@ -336,14 +372,16 @@ class Auth{
     void loadUsers(){
 
         string name, pass;
+        last = -1;
 
-        ifstream authFile ("C:/Users/roger/Documents/TUP/cpp/CONTACT_BOOK/DATABASE/userAuths.txt");
+        ifstream authFile ("DATABASE/userAuths.txt");
 
         if(!authFile){
-            cout<<"Try again later";
+            // If file doesn't exist yet, it's fine for a new run
             return;
         }
-        while (authFile>>name>>pass){
+        while (authFile>>name>>pass && last < ROWS - 1){
+            last++;
             usernames[last] = name;
             passwords[last] = pass;
         }
@@ -354,17 +392,16 @@ class Auth{
 
         string tempName, tempPass;
 
-        ifstream authFile ("C:/Users/roger/Documents/TUP/cpp/CONTACT_BOOK/DATABASE/userAuths.txt");
+        ifstream authFile ("DATABASE/userAuths.txt");
         if (!authFile){
-            cout<<"Database not loading, try again later.";
             return false;
         }
-            while(authFile>>tempName>>tempPass){
-                if (name==tempName){
-                    authFile.close();
-                    return name==tempName;
-                }
+        while(authFile>>tempName>>tempPass){
+            if (name==tempName){
+                authFile.close();
+                return true;
             }
+        }
         authFile.close();
         return false;
     }
@@ -373,7 +410,7 @@ class Auth{
 
     bool logIn(){
         system("cls");
-        ifstream authFile("C:/Users/roger/Documents/TUP/cpp/CONTACT_BOOK/DATABASE/userAuths.txt");
+        ifstream authFile("DATABASE/userAuths.txt");
 
         string tempName, tempPass, authName, authPass;
 
@@ -383,19 +420,24 @@ class Auth{
         cout<<"Enter password: ";
         getline(cin, tempPass);
 
+        if (!authFile) {
+            cout << "No users registered yet." << endl;
+            system("pause");
+            return false;
+        }
+
         while(authFile>>authName>>authPass){
             if (authName == tempName && authPass == tempPass){
                 cout<<"Log in successfull";
                 system("pause");
+                authFile.close();
                 return true;
-            } else{
-                cout<<"Username or password is incorrect, try again later.";
-                system("pause");
-                return false;
             }
         }
         authFile.close();
-
+        cout<<"Username or password is incorrect, try again later.";
+        system("pause");
+        return false;
     }
 };
 
